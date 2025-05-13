@@ -8,7 +8,7 @@ public class AppConfig {
 	public static String DRIVE_FOLDER_NAME = "Iion-Weather-Reports";
 	public static String DRIVE_API_URL = "https://www.googleapis.com/drive/v3/drives";
 
-	public static String[] EMAIL_IDS = {};
+	public static String[] EMAIL_IDS = System.getenv("EMAIL_IDS").split(",");
 
 	static {
 

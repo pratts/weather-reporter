@@ -20,27 +20,45 @@ public class LocationApiHandler {
 	}
 
 	private List<Location> parseLocations(String json) {
-		List<Location> result = new ArrayList<Location>();
+		List<Location> result = new ArrayList<>();
 
-		// Split by curly brace blocks (naively)
-		String[] items = json.split("\\},\\{");
+		// Remove surrounding array brackets
+		json = json.trim();
+		if (json.startsWith("["))
+			json = json.substring(1);
+		if (json.endsWith("]"))
+			json = json.substring(0, json.length() - 1);
+
+		// Since you are only getting 1 object or many objects separated by "},{" —
+		// split accordingly
+		String[] items = json.split("(?<=\\}),\\s*(?=\\{)");
 
 		for (String item : items) {
 			Location loc = new Location();
 
 			loc.key = extract(item, "\"Key\":\"", "\"");
+			if (loc.key.isEmpty())
+				loc.key = extract(item, "\"Key\":", ",");
+
 			loc.name = extract(item, "\"EnglishName\":\"", "\"");
-			loc.country = extract(item, "\"Country\":\\{[^}]*?\"EnglishName\":\"", "\"");
-			loc.region = extract(item, "\"Region\":\\{[^}]*?\"EnglishName\":\"", "\"");
-			loc.timezone = extract(item, "\"TimeZone\":\\{[^}]*?\"Name\":\"", "\"");
+
+			loc.country = extractNestedField(item, "\"Country\"", "\"EnglishName\":\"", "\"");
+			loc.region = extractNestedField(item, "\"Region\"", "\"EnglishName\":\"", "\"");
+			loc.timezone = extractNestedField(item, "\"TimeZone\"", "\"Name\":\"", "\"");
 
 			try {
-				loc.rank = Integer.parseInt(extract(item, "\"Rank\":", ","));
-				loc.latitude = Double.parseDouble(extract(item, "\"Latitude\":", ","));
-				loc.longitude = Double.parseDouble(extract(item, "\"Longitude\":", ","));
+				loc.rank = Integer.parseInt(extract(item, "\"Rank\":", ",").trim());
 			} catch (Exception ignored) {
 			}
 
+			String geoPosition = extractBlock(item, "\"GeoPosition\"");
+			if (!geoPosition.isEmpty()) {
+				try {
+					loc.latitude = Double.parseDouble(extract(geoPosition, "\"Latitude\":", ",").trim());
+					loc.longitude = Double.parseDouble(extract(geoPosition, "\"Longitude\":", ",").trim());
+				} catch (Exception ignored) {
+				}
+			}
 			result.add(loc);
 		}
 
@@ -57,4 +75,31 @@ public class LocationApiHandler {
 			return "";
 		return src.substring(start, end);
 	}
+
+	private static String extractBlock(String src, String blockKey) {
+		int start = src.indexOf(blockKey);
+		if (start == -1)
+			return "";
+		int braceStart = src.indexOf("{", start);
+		if (braceStart == -1)
+			return "";
+		int depth = 0;
+		for (int i = braceStart; i < src.length(); i++) {
+			if (src.charAt(i) == '{')
+				depth++;
+			else if (src.charAt(i) == '}')
+				depth--;
+			if (depth == 0)
+				return src.substring(braceStart, i + 1);
+		}
+		return "";
+	}
+
+	private static String extractNestedField(String src, String blockKey, String nestedKeyPrefix, String endChar) {
+		String block = extractBlock(src, blockKey);
+		if (block.isEmpty())
+			return "";
+		return extract(block, nestedKeyPrefix, endChar);
+	}
+
 }
