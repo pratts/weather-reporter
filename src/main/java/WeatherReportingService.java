@@ -32,7 +32,8 @@ public class WeatherReportingService {
 		}
 	}
 
-	public void reportWeather() throws ClassNotFoundException, IOException, InterruptedException, ReportingException {
+	public void reportWeather()
+			throws ClassNotFoundException, IOException, InterruptedException, ReportingException, Exception {
 		if (this.driveApiHandler == null) {
 			throw new ReportingException(500, "Driver APIs not available");
 		}

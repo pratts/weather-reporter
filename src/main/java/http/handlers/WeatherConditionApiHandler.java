@@ -2,6 +2,9 @@ package http.handlers;
 
 import java.io.IOException;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import config.AppConfig;
 import http.BaseHttpClient;
 import models.ReportingException;
@@ -17,40 +20,14 @@ public class WeatherConditionApiHandler {
 	}
 
 	private WeatherCondition parseWeatherCondition(String json) {
-		String[] items = json.split("\\},\\{");
 		WeatherCondition w = new WeatherCondition();
-		for (String item : items) {
-			w.weatherText = extract(item, "\"WeatherText\":\"", "\"");
-
-			// No quotes around booleans or numbers
-			w.isDayTime = extract(item, "\"IsDayTime\":", ",").trim().equals("true");
-
-			w.observationTime = Long.parseLong(extract(item, "\"EpochTime\":", ",").trim());
-
-			// Extract the Temperature object
-			String tempBlock = extract(item, "\"Temperature\":{", "},\"MobileLink\"");
-
-			// Extract Celsius (Metric)
-			String metricBlock = extract(tempBlock, "\"Metric\":{", "},\"Imperial\"");
-			String celsius = extract(metricBlock, "\"Value\":", ",");
-			w.temparatureC = Double.parseDouble(celsius);
-
-			// Extract Fahrenheit (Imperial)
-			String imperialBlock = extract(tempBlock, "\"Imperial\":{", "}");
-			String fahrenheit = extract(imperialBlock, "\"Value\":", ",");
-			w.temparatureF = Double.parseDouble(fahrenheit);
-		}
+		JSONArray jsonArray = new JSONArray(json);
+		JSONObject obj = jsonArray.getJSONObject(0);
+		w.weatherText = obj.getString("WeatherText");
+		w.isDayTime = obj.getBoolean("IsDayTime");
+		w.observationTime = obj.getLong("EpochTime");
+		w.temparatureC = obj.getJSONObject("Temperature").getJSONObject("Metric").getDouble("Value");
+		w.temparatureF = obj.getJSONObject("Temperature").getJSONObject("Imperial").getDouble("Value");
 		return w;
-	}
-
-	private static String extract(String src, String prefix, String endChar) {
-		int start = src.indexOf(prefix);
-		if (start == -1)
-			return "";
-		start += prefix.length();
-		int end = src.indexOf(endChar, start);
-		if (end == -1)
-			return "";
-		return src.substring(start, end);
 	}
 }

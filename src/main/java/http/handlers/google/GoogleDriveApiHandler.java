@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.json.JSONObject;
+
 import config.AppConfig;
 import http.BaseHttpClient;
 import http.handlers.IDriveApiHandler;
@@ -109,7 +111,11 @@ public class GoogleDriveApiHandler implements IDriveApiHandler {
 		String permissionUrl = String.format("https://www.googleapis.com/drive/v3/files/%s/permissions", fileId);
 
 		for (String email : AppConfig.EMAIL_IDS) {
-			String body = String.format("{\"role\": \"writer\", \"type\": \"user\", \"emailAddress\": \"%s\"}", email);
+			JSONObject json = new JSONObject();
+			json.put("role", "writer");
+			json.put("type", "user");
+			json.put("emailAddress", email);
+			String body = json.toString();
 			BaseHttpClient.getInstance().post(permissionUrl, headers, body);
 		}
 	}
@@ -127,7 +133,11 @@ public class GoogleDriveApiHandler implements IDriveApiHandler {
 				fileId, encodedMessage);
 
 		for (String email : AppConfig.EMAIL_IDS) {
-			String body = String.format("{\"role\": \"writer\", \"type\": \"user\", \"emailAddress\": \"%s\"}", email);
+			JSONObject json = new JSONObject();
+			json.put("role", "writer");
+			json.put("type", "user");
+			json.put("emailAddress", email);
+			String body = json.toString();
 			BaseHttpClient.getInstance().post(permissionUrl, headers, body);
 		}
 		return String.format("https://docs.google.com/spreadsheets/d/%s/edit?usp=sharing", fileId);

@@ -10,8 +10,8 @@ import java.time.Instant;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+import org.json.JSONObject;
 
 import config.GoogleConfig;
 import http.BaseHttpClient;
@@ -79,11 +79,13 @@ public class GoogleAuthHandler {
 	}
 
 	private String extractJsonValue(String json, String key) {
-		String pattern = "\"" + key + "\":\\s*\"([^\"]+)\"";
-		Matcher matcher = Pattern.compile(pattern).matcher(json);
-		if (matcher.find()) {
-			return matcher.group(1);
+		JSONObject jsonObject = new JSONObject(json);
+		System.out.println("json obj: " + jsonObject);
+		if (jsonObject.has(key)) {
+			return jsonObject.getString(key);
+		} else {
+			System.out.println("no key");
+			throw new RuntimeException("Key not found: " + key);
 		}
-		throw new RuntimeException("Key not found: " + key);
 	}
 }

@@ -17,6 +17,9 @@ public class Main {
 				System.out.println("\nWeather report generation completed.");
 			} catch (ClassNotFoundException | IOException | InterruptedException | ReportingException e) {
 				e.printStackTrace();
+			} catch (Exception e) {
+				System.out.println("exception: " + e);
+				e.printStackTrace();
 			}
 		};
 
