@@ -12,7 +12,9 @@ public class Main {
 		Runnable r = () -> {
 			WeatherReportingService weatherService = new WeatherReportingService();
 			try {
+				System.out.println("Starting weather report generation...");
 				weatherService.reportWeather();
+				System.out.println("\nWeather report generation completed.");
 			} catch (ClassNotFoundException | IOException | InterruptedException | ReportingException e) {
 				e.printStackTrace();
 			}

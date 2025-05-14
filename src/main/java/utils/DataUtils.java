@@ -7,7 +7,7 @@ import models.Location;
 
 public class DataUtils {
 	public static String[][] locationDataToCsvRows(List<Location> locations) {
-		String[][] csvRows = new String[locations.size() + 1][12];
+		String[][] csvRows = new String[locations.size()][12];
 		csvRows[0] = "Name,Country,Region,Timezone,Rank,Latitude,Longitude,Weather Text,Is Day Time,Temperature Celsius (C),Temperature Fahrenheit (F),Last Updated At"
 				.split(",");
 		for (int i = 0; i < locations.size(); i++) {

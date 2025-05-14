@@ -22,6 +22,10 @@ public class GoogleDriveApiHandler implements IDriveApiHandler {
 		this.authHandler = new GoogleAuthHandler();
 	}
 
+	public String getToken() {
+		return this.token;
+	}
+
 	@Override
 	public String uploadExcel(String[][] content, String folderId)
 			throws IOException, InterruptedException, ReportingException {
@@ -33,26 +37,9 @@ public class GoogleDriveApiHandler implements IDriveApiHandler {
 			throw new ReportingException(500, "Token is not available");
 		}
 
-		int retry = 2;
-		while (retry >= 0) {
-			try {
-				String excelFileName = this.createExcel(folderId);
-				this.populateExcelData(excelFileName, content);
-				return excelFileName;
-			} catch (ReportingException e) {
-				e.printStackTrace();
-				if (e.getCode() == 401) {
-					this.updateToken();
-				} else {
-					throw e;
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				throw e;
-			}
-			retry--;
-		}
-		return null;
+		String excelFileName = this.createExcel(folderId);
+		this.populateExcelData(excelFileName, content);
+		return excelFileName;
 	}
 
 	private String getCurrentTime() {

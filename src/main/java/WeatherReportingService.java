@@ -37,11 +37,17 @@ public class WeatherReportingService {
 			throw new ReportingException(500, "Driver APIs not available");
 		}
 
+		System.out.println("\nFetching location and weather conditions...");
 		List<Location> locations = this.getLocationAndWeatherConditions();
-		locations = locations.subList(0, 1);
+		System.out.println("Fetched " + locations.size() + " locations and their weather conditions.");
+
+		System.out.println("\nCreating and sharing weather report...");
 		String[][] csv = DataUtils.locationDataToCsvRows(locations);
 
+		System.out.println("\nGenerating excel file...");
 		this.createAndShareWeatherReport(csv);
+		System.out.println("Excel file generated and shared successfully.");
+
 	}
 
 	private void createAndShareWeatherReport(String[][] data)
@@ -60,7 +66,6 @@ public class WeatherReportingService {
 	private List<Location> getLocationAndWeatherConditions()
 			throws ClassNotFoundException, IOException, InterruptedException, ReportingException {
 		List<Location> locations = this.locationApi.getTop50Locations();
-		locations = locations.subList(0, 1);
 
 		Map<String, WeatherCondition> cityWeatherMap = getWeatherConditionForCities(
 				locations.stream().map(l -> l.key).toArray(String[]::new));

@@ -18,4 +18,6 @@ public interface IDriveApiHandler {
 	public void updateToken();
 
 	public void deleteFolder(String folderId) throws IOException, InterruptedException, ReportingException;
+
+	public String getToken();
 }
