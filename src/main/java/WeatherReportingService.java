@@ -57,7 +57,6 @@ public class WeatherReportingService {
 		}
 
 		this.driveApiHandler.generatePublicLink(excelFileId);
-		this.executorService.shutdown();
 	}
 
 	private Map<String, WeatherCondition> getWeatherConditionForCities(String[] cityKeys) {
