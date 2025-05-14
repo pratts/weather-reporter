@@ -50,12 +50,13 @@ public class WeatherReportingService {
 
 		String[][] csv = DataUtils.locationDataToCsvRows(locations);
 
-		String excelFileId = this.driveApiHandler.uploadExcel(csv);
+		String folderId = this.driveApiHandler.checkAndCreateSharedFolder();
+		String excelFileId = this.driveApiHandler.uploadExcel(csv, folderId);
 		if (excelFileId == null) {
 			throw new ReportingException(500, "Error while creating excel on drive");
 		}
 
-		String publicLink = this.driveApiHandler.generatePublicLink(excelFileId);
+		this.driveApiHandler.generatePublicLink(excelFileId);
 		this.executorService.shutdown();
 	}
 

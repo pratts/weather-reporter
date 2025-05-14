@@ -20,11 +20,11 @@ public class GoogleDriveApiHandler implements IDriveApiHandler {
 
 	public GoogleDriveApiHandler() throws Exception {
 		this.authHandler = new GoogleAuthHandler();
-
 	}
 
 	@Override
-	public String uploadExcel(String[][] content) throws IOException, InterruptedException, ReportingException {
+	public String uploadExcel(String[][] content, String folderId)
+			throws IOException, InterruptedException, ReportingException {
 		if (this.token == null) {
 			this.updateToken();
 		}
@@ -36,8 +36,6 @@ public class GoogleDriveApiHandler implements IDriveApiHandler {
 		int retry = 2;
 		while (retry >= 0) {
 			try {
-				String folderId = this.checkAndCreateDrive();
-
 				String excelFileName = this.createExcel(folderId);
 				this.populateExcelData(excelFileName, content);
 				return excelFileName;
@@ -180,7 +178,7 @@ public class GoogleDriveApiHandler implements IDriveApiHandler {
 		return this.getIdFromResponse(createResponse);
 	}
 
-	private String checkAndCreateDrive() throws IOException, InterruptedException, ReportingException {
+	public String checkAndCreateSharedFolder() throws IOException, InterruptedException, ReportingException {
 		String folderId = this.getFolder();
 
 		if (folderId == null) {
