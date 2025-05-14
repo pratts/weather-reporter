@@ -102,10 +102,10 @@ public class GoogleDriveApiHandler implements IDriveApiHandler {
 		}
 		valueJson.append("] }");
 		String payload = valueJson.toString();
-		String response = BaseHttpClient.getInstance().post(appendUrl, headers, payload);
+		BaseHttpClient.getInstance().post(appendUrl, headers, payload);
 	}
 
-	private void updateToken() {
+	public void updateToken() {
 		if (this.token == null) {
 			try {
 				this.token = this.authHandler.getAccessToken();
@@ -116,19 +116,20 @@ public class GoogleDriveApiHandler implements IDriveApiHandler {
 	}
 
 	@Override
-	public void updatePermissions(String fileId) throws IOException, InterruptedException, ReportingException {
+	public void shareFile(String fileId) throws IOException, InterruptedException, ReportingException {
 		Map<String, String> headers = Map.of("Authorization", "Bearer " + this.token, "accept", "application/json");
 
 		String permissionUrl = String.format("https://www.googleapis.com/drive/v3/files/%s/permissions", fileId);
 
 		for (String email : AppConfig.EMAIL_IDS) {
 			String body = String.format("{\"role\": \"writer\", \"type\": \"user\", \"emailAddress\": \"%s\"}", email);
-			String response = BaseHttpClient.getInstance().post(permissionUrl, headers, body);
+			BaseHttpClient.getInstance().post(permissionUrl, headers, body);
 		}
 	}
 
 	@Override
-	public String generatePublicLink(String fileId) throws IOException, InterruptedException, ReportingException {
+	public String shareFileWithEmailNotification(String fileId)
+			throws IOException, InterruptedException, ReportingException {
 		Map<String, String> headers = Map.of("Authorization", "Bearer " + this.token, "accept", "application/json");
 		String message = String.format(
 				"Here is the public link of the file: https://docs.google.com/spreadsheets/d/%s/edit?usp=sharing",
@@ -140,14 +141,9 @@ public class GoogleDriveApiHandler implements IDriveApiHandler {
 
 		for (String email : AppConfig.EMAIL_IDS) {
 			String body = String.format("{\"role\": \"writer\", \"type\": \"user\", \"emailAddress\": \"%s\"}", email);
-			String response = BaseHttpClient.getInstance().post(permissionUrl, headers, body);
+			BaseHttpClient.getInstance().post(permissionUrl, headers, body);
 		}
 		return String.format("https://docs.google.com/spreadsheets/d/%s/edit?usp=sharing", fileId);
-	}
-
-	@Override
-	public boolean sendExcelInEmail(String fileName) {
-		return false;
 	}
 
 	private String getFolder() throws IOException, InterruptedException, ReportingException {
@@ -183,7 +179,6 @@ public class GoogleDriveApiHandler implements IDriveApiHandler {
 
 		if (folderId == null) {
 			folderId = this.createFolder();
-			this.updatePermissions(folderId);
 		}
 
 		if (folderId == null) {

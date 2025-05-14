@@ -28,18 +28,39 @@ public class WeatherReportingService {
 		try {
 			this.driveApiHandler = this.getDriveHandler();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
-	public void getAndReportWeather()
-			throws ClassNotFoundException, IOException, InterruptedException, ReportingException {
+	public void reportWeather() throws ClassNotFoundException, IOException, InterruptedException, ReportingException {
 		if (this.driveApiHandler == null) {
 			throw new ReportingException(500, "Driver APIs not available");
 		}
 
+		List<Location> locations = this.getLocationAndWeatherConditions();
+		locations = locations.subList(0, 1);
+		String[][] csv = DataUtils.locationDataToCsvRows(locations);
+
+		this.createAndShareWeatherReport(csv);
+	}
+
+	private void createAndShareWeatherReport(String[][] data)
+			throws IOException, InterruptedException, ReportingException {
+		this.driveApiHandler.updateToken();
+		String folderId = this.driveApiHandler.checkAndCreateSharedFolder();
+		this.driveApiHandler.shareFile(folderId);
+		String excelFileId = this.driveApiHandler.uploadExcel(data, folderId);
+		if (excelFileId == null) {
+			throw new ReportingException(500, "Error while creating excel on drive");
+		}
+
+		this.driveApiHandler.shareFileWithEmailNotification(excelFileId);
+	}
+
+	private List<Location> getLocationAndWeatherConditions()
+			throws ClassNotFoundException, IOException, InterruptedException, ReportingException {
 		List<Location> locations = this.locationApi.getTop50Locations();
+		locations = locations.subList(0, 1);
 
 		Map<String, WeatherCondition> cityWeatherMap = getWeatherConditionForCities(
 				locations.stream().map(l -> l.key).toArray(String[]::new));
@@ -47,16 +68,7 @@ public class WeatherReportingService {
 		locations.forEach((l) -> {
 			l.weatherCondition = cityWeatherMap.get(l.key);
 		});
-
-		String[][] csv = DataUtils.locationDataToCsvRows(locations);
-
-		String folderId = this.driveApiHandler.checkAndCreateSharedFolder();
-		String excelFileId = this.driveApiHandler.uploadExcel(csv, folderId);
-		if (excelFileId == null) {
-			throw new ReportingException(500, "Error while creating excel on drive");
-		}
-
-		this.driveApiHandler.generatePublicLink(excelFileId);
+		return locations;
 	}
 
 	private Map<String, WeatherCondition> getWeatherConditionForCities(String[] cityKeys) {
