@@ -42,7 +42,7 @@ public class WeatherReportingService {
 		List<Location> locations = this.getLocationAndWeatherConditions();
 		System.out.println("Fetched " + locations.size() + " locations and their weather conditions.");
 
-		System.out.println("\nCreating and sharing weather report...");
+		System.out.println("\nCreating and sharing weather report for " + locations.size() + " locations...");
 		String[][] csv = DataUtils.locationDataToCsvRows(locations);
 
 		System.out.println("\nGenerating excel file...");

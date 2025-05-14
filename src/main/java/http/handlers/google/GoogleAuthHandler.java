@@ -80,7 +80,6 @@ public class GoogleAuthHandler {
 
 	private String extractJsonValue(String json, String key) {
 		JSONObject jsonObject = new JSONObject(json);
-		System.out.println("json obj: " + jsonObject);
 		if (jsonObject.has(key)) {
 			return jsonObject.getString(key);
 		} else {
