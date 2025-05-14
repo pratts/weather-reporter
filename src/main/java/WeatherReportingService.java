@@ -47,7 +47,7 @@ public class WeatherReportingService {
 	private void createAndShareWeatherReport(String[][] data)
 			throws IOException, InterruptedException, ReportingException {
 		this.driveApiHandler.updateToken();
-		String folderId = this.driveApiHandler.checkAndCreateSharedFolder();
+		String folderId = this.driveApiHandler.checkAndCreateFolder();
 		this.driveApiHandler.shareFile(folderId);
 		String excelFileId = this.driveApiHandler.uploadExcel(data, folderId);
 		if (excelFileId == null) {

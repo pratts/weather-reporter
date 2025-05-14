@@ -14,7 +14,6 @@ public class Main {
 			try {
 				weatherService.reportWeather();
 			} catch (ClassNotFoundException | IOException | InterruptedException | ReportingException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		};

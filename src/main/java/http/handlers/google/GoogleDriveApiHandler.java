@@ -174,7 +174,7 @@ public class GoogleDriveApiHandler implements IDriveApiHandler {
 		return this.getIdFromResponse(createResponse);
 	}
 
-	public String checkAndCreateSharedFolder() throws IOException, InterruptedException, ReportingException {
+	public String checkAndCreateFolder() throws IOException, InterruptedException, ReportingException {
 		String folderId = this.getFolder();
 
 		if (folderId == null) {
@@ -186,6 +186,14 @@ public class GoogleDriveApiHandler implements IDriveApiHandler {
 		}
 
 		return folderId;
+	}
+
+	public void deleteFolder(String folderId) throws IOException, InterruptedException, ReportingException {
+		String deleteUrl = String.format("https://www.googleapis.com/drive/v3/files/%s", folderId);
+		Map<String, String> headers = Map.of("Authorization", "Bearer " + this.token, "Content-Type",
+				"application/json");
+
+		BaseHttpClient.getInstance().delete(deleteUrl, headers);
 	}
 
 	private String getIdFromResponse(String res) {

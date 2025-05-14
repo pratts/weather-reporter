@@ -68,4 +68,19 @@ public class BaseHttpClient {
 		}
 		return response.body();
 	}
+
+	public int delete(String url, Map<String, String> headers)
+			throws IOException, InterruptedException, ReportingException {
+		HttpRequest.Builder builder = HttpRequest.newBuilder();
+
+		for (Map.Entry<String, String> it : headers.entrySet()) {
+			builder.header(it.getKey(), it.getValue());
+		}
+		builder.uri(URI.create(url));
+		builder.DELETE();
+		HttpRequest request = builder.build();
+
+		HttpResponse<String> response = this.client.send(request, HttpResponse.BodyHandlers.ofString());
+		return response.statusCode();
+	}
 }
